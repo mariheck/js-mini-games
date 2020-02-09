@@ -1,0 +1,9 @@
+h1 {
+  padding: 40px 0;
+}
+
+#snakeCanvas {
+  background-color: #fff;
+  display: block;
+  margin: 50px auto;
+}
