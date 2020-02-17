@@ -42,7 +42,7 @@ nav .selected {
 }
 
 nav button {
-  background-color: none;
+  background-color: #fff;
 	border: none;
   color: var(--main-color);
   font-size: inherit;
