@@ -1,6 +1,7 @@
 :root {
   --background: #232323;
   --main-color: steelblue;
+  --game-over: darkred;
 }
 
 body {
@@ -18,12 +19,18 @@ h1 {
   font-weight: normal;
   line-height: 1.1;
   margin: 0;
+  padding: 20px 0;
   text-align: center;
   text-transform: uppercase;
 }
 
 h1 span {
   font-size: 200%;
+}
+
+.game-over {
+  background-color: var(--game-over);
+  color: #fff;
 }
 
 
@@ -62,5 +69,6 @@ nav button:hover {
 }
 
 nav span {
-  margin: 0 100px;
+  display: inline-block;
+  width: 600px;
 }
