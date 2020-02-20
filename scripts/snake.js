@@ -5,8 +5,7 @@ var messageDisplay = document.querySelector("#snakeMsg");
 var reset = document.querySelector(".reset");
 var easy = document.querySelector(".levelEasy");
 var hard = document.querySelector(".levelHard");
-var h1 = document.querySelector("h1");
-var buttons = document.querySelectorAll("button");
+var bg = document.querySelector("body");
 
 var ctx;
 var blockSize = 30;
@@ -18,7 +17,7 @@ var apple;
 var gameScore;
 var scoreToAdd = 50;
 var timeout;
-var delay = 500;
+var delay = 150;
 var levelEasy = true;
 
 init();
@@ -39,10 +38,8 @@ function init(){
 // =========================================================
 
 function start(){
-  h1.classList.remove("game-over");
-  buttons.forEach(btn => {
-    btn.classList.remove("game-over");
-  });
+  bg.classList.remove("game-over");
+
 
   gameScore = 0;
   messageDisplay.textContent = "Score : " + gameScore;
@@ -73,7 +70,7 @@ function refreshCanvas(){
       }while(apple.onSnake(snake));
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    snake.draw("#4682b4");
+    snake.draw("#ED7E70");
     apple.draw();
     timeout = setTimeout(refreshCanvas, delay);
   }
@@ -85,11 +82,7 @@ function refreshCanvas(){
 // =========================================================
 
 function gameOver(){
-  h1.classList.add("game-over");
-  buttons.forEach(btn => {
-    btn.classList.add("game-over");
-    btn.classList.remove("selected");
-  });
+  bg.classList.add("game-over");
 
   ctx.fillStyle = "#232323";
   ctx.textAlign = "center";
@@ -269,11 +262,6 @@ document.onkeydown = function keyDown(e){
       snake.setDirection("down");
       break;
     case 13:
-      if(levelEasy){
-        buttons[1].classList.add("selected");
-      } else {
-        buttons[2].classList.add("selected");
-      }
       start();
       break;
     default:
@@ -287,18 +275,13 @@ document.onkeydown = function keyDown(e){
 // =========================================================
 
 reset.addEventListener("click", function(){
-  if(levelEasy){
-    buttons[1].classList.add("selected");
-  } else {
-    buttons[2].classList.add("selected");
-  }
   start();
 });
 
 easy.addEventListener("click", function(){
   this.classList.add("selected");
   hard.classList.remove("selected");
-  delay = 500;
+  delay = 150;
   scoreToAdd = 50;
   levelEasy = true;
   start();
@@ -307,7 +290,7 @@ easy.addEventListener("click", function(){
 hard.addEventListener("click", function(){
   this.classList.add("selected");
   easy.classList.remove("selected");
-  delay = 100;
+  delay = 90;
   scoreToAdd = 100;
   levelEasy = false;
   start();

@@ -1,6 +1,6 @@
 :root {
   --background: #232323;
-  --main-color: steelblue;
+  --main-color: salmon;
   --game-over: darkred;
 }
 
@@ -8,6 +8,11 @@ body {
   background-color: var(--background);
   font-family: "Avenir", sans-serif;
 	margin: 0;
+}
+
+.bg {
+  background-color: var(--background);
+
 }
 
 
