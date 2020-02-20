@@ -48,7 +48,9 @@ function start(){
   messageDisplay.textContent = "Score : " + gameScore;
   snake = new Snake();
   apple = new Apple();
-  apple.setPosition();
+  do{
+    apple.setPosition();
+  }while(apple.onSnake(snake));
   clearTimeout(timeout);
   refreshCanvas();
 }
@@ -222,9 +224,10 @@ function Apple(){
 
   // SET APPLE POSITION
   this.setPosition = function(){
-    var x = (Math.round(Math.random() * widthInBlocks));
-    var y = (Math.round(Math.random() * heightInBlocks));
+    var x = Math.round(Math.random() * (widthInBlocks - 1));
+    var y = Math.round(Math.random() * (heightInBlocks - 1));
     this.position = [x, y];
+
   };
 
   // DRAW APPLE
