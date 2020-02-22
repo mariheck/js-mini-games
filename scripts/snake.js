@@ -14,20 +14,20 @@ var heightInBlocks = canvas.height/blockSize;
 var radius = blockSize/2;
 var snake;
 var apple;
-var gameScore;
-var scoreToAdd = 50;
+var gameScore = 0;
+var scoreToAdd;
 var timeout;
-var delay = 150;
+var delay;
 var levelEasy = true;
 
-init();
+run();
 
 
 // =========================================================
 // INIT FUNCTION
 // =========================================================
 
-function init(){
+function run(){
   ctx = canvas.getContext("2d");
   start();
 }
@@ -38,18 +38,36 @@ function init(){
 // =========================================================
 
 function start(){
+  init();
+  refreshCanvas();
+}
+
+
+// =========================================================
+// INIT FUNCTION
+// =========================================================
+
+function init(){
+  if(levelEasy){
+    easy.classList.add("selected");
+    hard.classList.remove("selected");
+    scoreToAdd = 50;
+    delay = 150;
+  }else{
+    hard.classList.add("selected");
+    easy.classList.remove("selected");
+    scoreToAdd = 100;
+    delay = 90;
+  }
+
+  score(0);
   bg.classList.remove("game-over");
-
-
-  gameScore = 0;
-  messageDisplay.textContent = "Score : " + gameScore;
   snake = new Snake();
   apple = new Apple();
   do{
     apple.setPosition();
-  }while(apple.onSnake(snake));
+  }while(apple.onSnake(snake.body));
   clearTimeout(timeout);
-  refreshCanvas();
 }
 
 
@@ -58,19 +76,19 @@ function start(){
 // =========================================================
 
 function refreshCanvas(){
-  snake.run();
+  snake.nextMove();
   if(snake.checkCollision()){
     gameOver();
   } else {
     if(snake.isEatingApple(apple)){
-      score();
+      score(scoreToAdd);
       snake.ateApple = true;
       do{
         apple.setPosition();
-      }while(apple.onSnake(snake));
+      }while(apple.onSnake(snake.body));
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    snake.draw("#ED7E70");
+    snake.draw();
     apple.draw();
     timeout = setTimeout(refreshCanvas, delay);
   }
@@ -82,8 +100,10 @@ function refreshCanvas(){
 // =========================================================
 
 function gameOver(){
+  // Red Background
   bg.classList.add("game-over");
 
+  // Text Styling
   ctx.fillStyle = "#232323";
   ctx.textAlign = "center";
   ctx.font = "bold 70px sans-serif";
@@ -97,8 +117,15 @@ function gameOver(){
 // SCORE FUNCTION
 // =========================================================
 
-function score(){
-  gameScore += scoreToAdd;
+function score(currScoreToAdd){
+  // Init new game
+  if(currScoreToAdd === 0){
+    gameScore = 0;
+  // Adding score
+  }else{
+    gameScore += currScoreToAdd;
+  }
+  // Displaying the score
   messageDisplay.textContent = "Score : " + gameScore;
 }
 
@@ -108,10 +135,22 @@ function score(){
 // DRAW BLOCK FUNCTION
 // =========================================================
 
-function drawBlock(ctx, position){
+function drawBlock(ctx, position, color){
+  ctx.fillStyle = color;
   var x = position[0] * blockSize;
   var y = position[1] * blockSize;
   ctx.fillRect(x, y, blockSize, blockSize);
+}
+
+// =========================================================
+// DRAW CIRCLE FUNCTION
+// =========================================================
+
+function drawCircle(ctx, position, color){
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(position[0] * blockSize + radius, position[1] * blockSize + radius, radius, 0, 2*Math.PI);
+  ctx.fill();
 }
 
 
@@ -126,15 +165,14 @@ function Snake(){
   this.ateApple = false;
 
   // DRAW SNAKE
-  this.draw = function(color){
-    ctx.fillStyle = color;
+  this.draw = function(){
     for(var i = 0; i < this.body.length; i++){
-      drawBlock(ctx, this.body[i]);
+      drawBlock(ctx, this.body[i], "#ED7E70");
     }
   };
 
   // SNAKE RUNNING
-  this.run = function(){
+  this.nextMove = function(){
     var nextPosition = this.body[0].slice();
 
     switch(this.direction){
@@ -216,28 +254,24 @@ function Apple(){
   this.position = [];
 
   // SET APPLE POSITION
-  this.setPosition = function(){
+  this.setPosition = () => {
     var x = Math.round(Math.random() * (widthInBlocks - 1));
     var y = Math.round(Math.random() * (heightInBlocks - 1));
     this.position = [x, y];
-
   };
 
   // DRAW APPLE
-  this.draw = function(){
-    ctx.fillStyle = "#51a149";
-    ctx.beginPath();
-    ctx.arc(this.position[0] * blockSize + radius, this.position[1] * blockSize + radius, radius, 0, 2*Math.PI);
-    ctx.fill();
+  this.draw = () => {
+    drawCircle(ctx, this.position, "#51a149");
   };
 
   // APPLE ON SNAKE TEST
-  this.onSnake = function(curSnake){
-    for(var i = 0; i < curSnake.body.length; i++){
-      if(this.position[0] === curSnake.body[i][0] && this.position[1] === curSnake.body[i][1]){
+  this.onSnake = curSnake => {
+    curSnake.forEach(snakeBlock => {
+      if(this.position[0] === snakeBlock[0] && this.position[1] === snakeBlock[1]){
         return true;
       }
-    }
+    });
     return false;
   };
 }
@@ -247,7 +281,7 @@ function Apple(){
 // KEYBOARD EVENTS
 // =========================================================
 
-document.onkeydown = function keyDown(e){
+document.onkeydown = e => {
   switch(e.keyCode){
     case 37:
       snake.setDirection("left");
@@ -274,24 +308,14 @@ document.onkeydown = function keyDown(e){
 // BUTTONS EVENTS
 // =========================================================
 
-reset.addEventListener("click", function(){
-  start();
-});
+reset.addEventListener("click", () => start());
 
-easy.addEventListener("click", function(){
-  this.classList.add("selected");
-  hard.classList.remove("selected");
-  delay = 150;
-  scoreToAdd = 50;
+easy.addEventListener("click", () => {
   levelEasy = true;
   start();
 });
 
-hard.addEventListener("click", function(){
-  this.classList.add("selected");
-  easy.classList.remove("selected");
-  delay = 90;
-  scoreToAdd = 100;
+hard.addEventListener("click", () => {
   levelEasy = false;
   start();
 });
