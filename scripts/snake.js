@@ -1,73 +1,79 @@
 // jshint esversion:6
 
-var canvas = document.querySelector("#snakeCanvas");
-var messageDisplay = document.querySelector("#snakeMsg");
-var reset = document.querySelector(".reset");
-var easy = document.querySelector(".levelEasy");
-var hard = document.querySelector(".levelHard");
-var bg = document.querySelector("body");
+let canvas = document.querySelector("#snakeCanvas");
+let messageDisplay = document.querySelector("#snakeMsg");
+let resetBtn = document.querySelector(".reset");
+let easyBtn = document.querySelector(".levelEasy");
+let hardBtn = document.querySelector(".levelHard");
+let bodyBackground = document.querySelector("body");
 
-var ctx;
-var blockSize = 30;
-var widthInBlocks = canvas.width/blockSize;
-var heightInBlocks = canvas.height/blockSize;
-var radius = blockSize/2;
-var snake;
-var apple;
-var gameScore = 0;
-var scoreToAdd;
-var timeout;
-var delay;
-var levelEasy = true;
+let ctx;
+let blockSize, widthInBlocks, heightInBlocks, radius;
+let snake, apple;
+let gameScore,scoreToAdd, levelEasy;
+let timeout, delay;
 
 run();
 
 
 // =========================================================
-// INIT FUNCTION
+// RUN FUNCTION
 // =========================================================
 
 function run(){
+  // INIT GLOBAL VARIABLES
+  blockSize = 30;
+  widthInBlocks = canvas.width/blockSize;
+  heightInBlocks = canvas.height/blockSize;
+  radius = blockSize/2;
+  levelEasy = true;
   ctx = canvas.getContext("2d");
-  start();
+
+  // START NEW GAME
+  newStart();
 }
 
 
 // =========================================================
-// START FUNCTION
+// NEW START FUNCTION
 // =========================================================
 
-function start(){
-  init();
+function newStart(){
+  gameInit();
   refreshCanvas();
 }
 
 
 // =========================================================
-// INIT FUNCTION
+// GAME INIT FUNCTION
 // =========================================================
 
-function init(){
+function gameInit(){
+  // INIT DEPENDING ON SELECTED LEVEL
   if(levelEasy){
-    easy.classList.add("selected");
-    hard.classList.remove("selected");
+    easyBtn.classList.add("selected");
+    hardBtn.classList.remove("selected");
     scoreToAdd = 50;
     delay = 150;
-  }else{
-    hard.classList.add("selected");
-    easy.classList.remove("selected");
+  } else {
+    hardBtn.classList.add("selected");
+    easyBtn.classList.remove("selected");
     scoreToAdd = 100;
     delay = 90;
   }
 
+  // PUT THE GAME BACK TO START CONFIG
   score(0);
-  bg.classList.remove("game-over");
+  bodyBackground.classList.remove("game-over");
+  clearTimeout(timeout);
+
+  // CREATE NEW SNAKE AND APPLE
   snake = new Snake();
   apple = new Apple();
-  do{
+  do {
     apple.setPosition();
-  }while(apple.onSnake(snake.body));
-  clearTimeout(timeout);
+  } while(apple.onSnake());
+
 }
 
 
@@ -85,7 +91,7 @@ function refreshCanvas(){
       snake.ateApple = true;
       do{
         apple.setPosition();
-      }while(apple.onSnake(snake.body));
+      }while(apple.onSnake());
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     snake.draw();
@@ -100,10 +106,10 @@ function refreshCanvas(){
 // =========================================================
 
 function gameOver(){
-  // Red Background
-  bg.classList.add("game-over");
+  // RED BACKGROUND
+  bodyBackground.classList.add("game-over");
 
-  // Text Styling
+  // TEXT STYLING
   ctx.fillStyle = "#232323";
   ctx.textAlign = "center";
   ctx.font = "bold 70px sans-serif";
@@ -118,14 +124,15 @@ function gameOver(){
 // =========================================================
 
 function score(currScoreToAdd){
-  // Init new game
+  // INIT NEW GAME
   if(currScoreToAdd === 0){
     gameScore = 0;
-  // Adding score
-  }else{
+  // ADDING SCORE
+  } else {
     gameScore += currScoreToAdd;
   }
-  // Displaying the score
+
+  // DISPLAYING THE SCORE
   messageDisplay.textContent = "Score : " + gameScore;
 }
 
@@ -165,14 +172,14 @@ function Snake(){
   this.ateApple = false;
 
   // DRAW SNAKE
-  this.draw = function(){
-    for(var i = 0; i < this.body.length; i++){
-      drawBlock(ctx, this.body[i], "#ED7E70");
-    }
+  this.draw = () => {
+    this.body.forEach(bodyBlock => {
+      drawBlock(ctx, bodyBlock, "#ED7E70");
+    });
   };
 
   // SNAKE RUNNING
-  this.nextMove = function(){
+  this.nextMove = () => {
     var nextPosition = this.body[0].slice();
 
     switch(this.direction){
@@ -201,7 +208,7 @@ function Snake(){
   };
 
   // SETTING DIRECTION OF SNAKE
-  this.setDirection = function(newDirection){
+  this.setDirection = newDirection => {
     switch(this.direction){
       case "right":
       case "left":
@@ -217,7 +224,7 @@ function Snake(){
   };
 
   // CHECKING COLLISION
-  this.checkCollision = function(){
+  this.checkCollision = () => {
     var wallCollision = false;
     var snakeCollision = false;
 
@@ -235,7 +242,7 @@ function Snake(){
   };
 
   // SNAKE IS EATING APPLE
-  this.isEatingApple = function(curApple){
+  this.isEatingApple = curApple => {
     if(this.body[0][0] === curApple.position[0] && this.body[0][1] === curApple.position[1]){
       return true;
     } else {
@@ -266,8 +273,8 @@ function Apple(){
   };
 
   // APPLE ON SNAKE TEST
-  this.onSnake = curSnake => {
-    curSnake.forEach(snakeBlock => {
+  this.onSnake = () => {
+    snake.body.forEach(snakeBlock => {
       if(this.position[0] === snakeBlock[0] && this.position[1] === snakeBlock[1]){
         return true;
       }
@@ -296,7 +303,7 @@ document.onkeydown = e => {
       snake.setDirection("down");
       break;
     case 13:
-      start();
+      newStart();
       break;
     default:
       break;
@@ -308,14 +315,14 @@ document.onkeydown = e => {
 // BUTTONS EVENTS
 // =========================================================
 
-reset.addEventListener("click", () => start());
+resetBtn.addEventListener("click", () => newStart());
 
-easy.addEventListener("click", () => {
+easyBtn.addEventListener("click", () => {
   levelEasy = true;
-  start();
+  newStart();
 });
 
-hard.addEventListener("click", () => {
+hardBtn.addEventListener("click", () => {
   levelEasy = false;
-  start();
+  newStart();
 });
