@@ -7,31 +7,20 @@ let easyBtn = document.querySelector(".levelEasy");
 let hardBtn = document.querySelector(".levelHard");
 let bodyBackground = document.querySelector("body");
 
-let ctx;
-let blockSize, widthInBlocks, heightInBlocks, radius;
+const ctx = canvas.getContext("2d"),
+      blockSize = 30,
+      widthInBlocks = canvas.width/blockSize,
+      heightInBlocks = canvas.height/blockSize,
+      radius = blockSize/2;
+
+let levelEasy = true;
+
 let snake, apple;
-let gameScore,scoreToAdd, levelEasy;
+let gameScore, scoreToAdd;
 let timeout, delay;
 
-run();
+newStart();
 
-
-// =========================================================
-// RUN FUNCTION
-// =========================================================
-
-function run(){
-  // INIT GLOBAL VARIABLES
-  blockSize = 30;
-  widthInBlocks = canvas.width/blockSize;
-  heightInBlocks = canvas.height/blockSize;
-  radius = blockSize/2;
-  levelEasy = true;
-  ctx = canvas.getContext("2d");
-
-  // START NEW GAME
-  newStart();
-}
 
 
 // =========================================================
@@ -85,7 +74,7 @@ function refreshCanvas(){
   if(snake.checkCollision()){
     gameOver();
   } else {
-    if(snake.isEatingApple(apple)){
+    if(snake.isEatingApple()){
       score(scoreToAdd);
       snake.ateApple = true;
       do{
@@ -136,27 +125,15 @@ function score(currScoreToAdd){
 }
 
 
-
 // =========================================================
 // DRAW BLOCK FUNCTION
 // =========================================================
 
-function drawBlock(ctx, position, color){
-  ctx.fillStyle = color;
-  var x = position[0] * blockSize;
-  var y = position[1] * blockSize;
+function drawBlock(position){
+  ctx.fillStyle = "#ED7E70";
+  const x = position[0] * blockSize;
+  const y = position[1] * blockSize;
   ctx.fillRect(x, y, blockSize, blockSize);
-}
-
-// =========================================================
-// DRAW CIRCLE FUNCTION
-// =========================================================
-
-function drawCircle(ctx, position, color){
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(position[0] * blockSize + radius, position[1] * blockSize + radius, radius, 0, 2*Math.PI);
-  ctx.fill();
 }
 
 
@@ -173,13 +150,13 @@ function Snake(){
   // DRAW SNAKE
   this.draw = () => {
     this.body.forEach(bodyBlock => {
-      drawBlock(ctx, bodyBlock, "#ED7E70");
+      drawBlock(bodyBlock);
     });
   };
 
-  // SNAKE RUNNING
+  // SNAKE MOVING
   this.nextMove = () => {
-    var nextPosition = this.body[0].slice();
+    let nextPosition = this.body[0].slice();
 
     switch(this.direction){
       case "left":
@@ -224,14 +201,14 @@ function Snake(){
 
   // CHECKING COLLISION
   this.checkCollision = () => {
-    var wallCollision = false;
-    var snakeCollision = false;
+    let wallCollision = false;
+    let snakeCollision = false;
 
     if(this.body[0][0] < 0 || this.body[0][1] < 0 || this.body[0][0] > widthInBlocks - 1 || this.body[0][1] > heightInBlocks - 1){
       wallCollision = true;
     }
 
-    for(var i = 1; i < this.body.length; i++){
+    for(let i = 1; i < this.body.length; i++){
       if(this.body[0][0] === this.body[i][0] && this.body[0][1] === this.body[i][1]){
         snakeCollision = true;
       }
@@ -241,8 +218,8 @@ function Snake(){
   };
 
   // SNAKE IS EATING APPLE
-  this.isEatingApple = curApple => {
-    if(this.body[0][0] === curApple.position[0] && this.body[0][1] === curApple.position[1]){
+  this.isEatingApple = () => {
+    if(this.body[0][0] === apple.position[0] && this.body[0][1] === apple.position[1]){
       return true;
     } else {
       return false;
@@ -261,14 +238,17 @@ function Apple(){
 
   // SET APPLE POSITION
   this.setPosition = () => {
-    var x = Math.round(Math.random() * (widthInBlocks - 1));
-    var y = Math.round(Math.random() * (heightInBlocks - 1));
+    const x = Math.round(Math.random() * (widthInBlocks - 1));
+    const y = Math.round(Math.random() * (heightInBlocks - 1));
     this.position = [x, y];
   };
 
   // DRAW APPLE
   this.draw = () => {
-    drawCircle(ctx, this.position, "#51a149");
+    ctx.fillStyle = "#51a149";
+    ctx.beginPath();
+    ctx.arc(this.position[0] * blockSize + radius, this.position[1] * blockSize + radius, radius, 0, 2*Math.PI);
+    ctx.fill();
   };
 
   // APPLE ON SNAKE TEST
@@ -318,11 +298,15 @@ document.onkeydown = e => {
 resetBtn.addEventListener("click", () => newStart());
 
 easyBtn.addEventListener("click", () => {
-  levelEasy = true;
-  newStart();
+  if(!levelEasy){
+    levelEasy = true;
+    newStart();
+  }
 });
 
 hardBtn.addEventListener("click", () => {
-  levelEasy = false;
-  newStart();
+  if(levelEasy){
+    levelEasy = false;
+    newStart();
+  }
 });
