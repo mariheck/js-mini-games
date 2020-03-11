@@ -73,7 +73,6 @@ function gameInit(){
   do {
     apple.setPosition();
   } while(apple.onSnake());
-
 }
 
 
@@ -274,7 +273,8 @@ function Apple(){
 
   // APPLE ON SNAKE TEST
   this.onSnake = () => {
-    snake.body.forEach(snakeBlock => {
+    const curSnake = snake.body;
+    curSnake.forEach(snakeBlock => {
       if(this.position[0] === snakeBlock[0] && this.position[1] === snakeBlock[1]){
         return true;
       }
